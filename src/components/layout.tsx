@@ -53,7 +53,7 @@ export default function Layout() {
   return (
     <Wrapper>
       <Menu>
-        <Link to="/profile">
+        <Link to="/">
           <MenuItem>
             <svg
               data-slot="icon"
@@ -70,7 +70,7 @@ export default function Layout() {
             </svg>
           </MenuItem>
         </Link>
-        <Link to="/">
+        <Link to="/profile">
           <MenuItem>
             <svg
               data-slot="icon"
