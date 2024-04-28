@@ -55,6 +55,39 @@ const Tweets = styled.div`
   gap: 10px;
 `;
 
+const EditButton = styled.button`
+  background-color: skyblue;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+const EditInput = styled.input`
+  padding: 10px;
+  border: 2px solid white;
+  border-radius: 20px;
+  font-size: 16px;
+  color: white;
+  background-color: black;
+  width: 30%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  &::placeholder {
+    font-size: 16px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+      sans-serif;
+  }
+  &:focus {
+    outline: none;
+    border-color: skyblue;
+  }
+`;
+
 export default function Profile() {
   const user = auth.currentUser;
   const [avatar, setAvatar] = useState(user?.photoURL);
@@ -102,6 +135,37 @@ export default function Profile() {
     setTweets(tweets);
   };
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editNickname, setEditNickname] = useState(
+    user?.displayName ?? "Anonymous"
+  );
+
+  const onEditNickname = async () => {
+    if (isEditing) {
+      setIsEditing(false);
+    }
+
+    if (!isEditing) {
+      setIsEditing(true);
+    }
+  };
+
+  const onNicknameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditNickname(e.target.value);
+
+    if (!user) {
+      return;
+    }
+
+    try {
+      await updateProfile(user, {
+        displayName: e.target.value,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     fetchTweets();
   }, []);
@@ -128,7 +192,20 @@ export default function Profile() {
         accept="image/*"
         onChange={onAvavtarChange}
       />
-      <Name>{user?.displayName ?? "Anonymous"}</Name>
+      {isEditing ? (
+        <EditInput
+          placeholder="Edit your name"
+          value={editNickname}
+          onChange={onNicknameChange}
+        />
+      ) : (
+        <Name>{user?.displayName ?? "Anonymous"}</Name>
+      )}
+      {isEditing ? (
+        <EditButton onClick={onEditNickname}>Save</EditButton>
+      ) : (
+        <EditButton onClick={onEditNickname}>Edit</EditButton>
+      )}
       <Tweets>
         {tweets.map((tweet) => (
           <Tweet key={tweet.id} {...tweet} />
